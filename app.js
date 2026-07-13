@@ -188,14 +188,28 @@ function renderTodayStats() {
   const done = memos.filter(m => m.completed).length;
   const total = memos.length;
 
-  statPending.textContent = `${pending} 待办`;
-  statDone.textContent = `${done} 已完成`;
+  // 数字弹跳动画
+  animateStat(statPending, `${pending} 待办`);
+  animateStat(statDone, `${done} 已完成`);
 
   if (total > 0) {
-    progressFill.style.width = `${Math.round((done / total) * 100)}%`;
+    const pct = Math.round((done / total) * 100);
+    progressFill.style.width = `${pct}%`;
+    if (pct === 100) {
+      progressFill.classList.add('full');
+      setTimeout(() => progressFill.classList.remove('full'), 600);
+    }
   } else {
     progressFill.style.width = '0%';
   }
+}
+
+function animateStat(el, text) {
+  if (el.textContent === text) return;
+  el.textContent = text;
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'statPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
 }
 
 // ── 操作 ────────────────────────────────────────────────────
@@ -302,6 +316,10 @@ function handleQuickAdd() {
   addMemo(title, '', today, '');
   quickAddInput.value = '';
   quickAddInput.focus();
+
+  // 按钮脉冲动画
+  quickAddBtn.classList.add('pulse');
+  setTimeout(() => quickAddBtn.classList.remove('pulse'), 500);
 
   // 如果当前不在今天，切换到今天
   if (currentDateKey !== today) {
