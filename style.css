@@ -1,59 +1,60 @@
 /* ============================================================
-   备忘录 — iOS 风格 PWA 样式
+   备忘录 — iOS 风格 PWA 样式（毛玻璃版）
    ============================================================ */
 
 :root {
   --bg: #f2f2f7;
-  --surface: #ffffff;
-  --surface2: #f9f9fb;
-  --separator: #e5e5ea;
+  --surface: rgba(255,255,255,0.72);
+  --surface-solid: #ffffff;
+  --surface2: rgba(249,249,251,0.65);
+  --separator: rgba(0,0,0,0.08);
   --text: #1c1c1e;
   --text2: #6e6e73;
   --text3: #aeaeb2;
   --blue: #007aff;
-  --blue-bg: #e8f2ff;
+  --blue-bg: rgba(0,122,255,0.12);
   --green: #34c759;
-  --green-bg: #e6f9ed;
+  --green-bg: rgba(52,199,89,0.12);
   --orange: #ff9500;
-  --orange-bg: #fff5e6;
+  --orange-bg: rgba(255,149,0,0.12);
   --red: #ff3b30;
-  --red-bg: #ffeaea;
+  --red-bg: rgba(255,59,48,0.12);
   --yellow: #ffcc00;
-  --yellow-bg: #fffbeb;
+  --yellow-bg: rgba(255,204,0,0.12);
 
   --radius: 14px;
   --radius-sm: 10px;
   --radius-xs: 6px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --blur: blur(24px);
+  --blur-light: blur(12px);
 
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
   --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
 
-  --safe-bottom: env(safe-area-inset-bottom, 16px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #000000;
-    --surface: #1c1c1e;
-    --surface2: #2c2c2e;
-    --separator: #38383a;
+    --surface: rgba(28,28,30,0.72);
+    --surface-solid: #1c1c1e;
+    --surface2: rgba(44,44,46,0.65);
+    --separator: rgba(255,255,255,0.08);
     --text: #f5f5f7;
     --text2: #98989d;
     --text3: #636366;
     --blue: #0a84ff;
-    --blue-bg: #0a2840;
+    --blue-bg: rgba(10,132,255,0.18);
     --green: #30d158;
-    --green-bg: #1a3a28;
+    --green-bg: rgba(48,209,88,0.18);
     --orange: #ff9f0a;
-    --orange-bg: #3a2818;
+    --orange-bg: rgba(255,159,10,0.18);
     --red: #ff453a;
-    --red-bg: #3a1a18;
+    --red-bg: rgba(255,69,58,0.18);
     --yellow: #ffd60a;
-    --yellow-bg: #3a3010;
-    --shadow: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+    --yellow-bg: rgba(255,214,10,0.18);
   }
 }
 
@@ -78,20 +79,21 @@ body {
 
 /* ==================== 主页面 ==================== */
 #main-page {
-  padding-bottom: calc(80px + var(--safe-bottom));
+  padding-top: var(--safe-top);
+  padding-bottom: calc(56px + var(--safe-bottom));
 }
 
 /* ── Header ── */
 .header {
   background: var(--surface);
-  padding: 12px 20px;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  padding: calc(12px + var(--safe-top)) 20px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 0.5px solid var(--separator);
   position: sticky; top: 0; z-index: 20;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 .header-left { display: flex; align-items: center; gap: 8px; }
 .header-icon { font-size: 24px; }
@@ -101,10 +103,12 @@ body {
 /* ── 今日卡片 ── */
 .today-card {
   background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
   margin: 16px 16px 0;
   border-radius: var(--radius);
   padding: 16px 18px;
-  box-shadow: var(--shadow);
+  border: 0.5px solid var(--separator);
 }
 .today-card-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -130,9 +134,11 @@ body {
   display: flex; gap: 10px;
   margin: 12px 16px 0;
   background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
   border-radius: var(--radius);
   padding: 6px 8px 6px 16px;
-  box-shadow: var(--shadow);
+  border: 0.5px solid var(--separator);
   align-items: center;
 }
 .quick-add-input {
@@ -161,12 +167,15 @@ body {
 .section-title { font-size: 18px; font-weight: 600; }
 .date-picker-btn {
   width: 36px; height: 36px; border-radius: 50%;
-  border: none; background: var(--surface2);
+  border: none;
+  background: var(--surface);
+  backdrop-filter: var(--blur-light);
+  -webkit-backdrop-filter: var(--blur-light);
   font-size: 18px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
 }
-.date-picker-btn:active { background: var(--separator); }
+.date-picker-btn:active { background: var(--surface2); }
 
 .date-picker {
   position: absolute; opacity: 0; pointer-events: none;
@@ -177,10 +186,12 @@ body {
 
 .memo-item {
   background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
   border-radius: var(--radius);
   padding: 14px 16px;
   display: flex; align-items: center; gap: 12px;
-  box-shadow: var(--shadow);
+  border: 0.5px solid var(--separator);
   cursor: pointer;
   transition: transform 0.15s, opacity 0.2s;
   animation: slideIn 0.3s ease;
@@ -190,7 +201,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .memo-item:active { transform: scale(0.985); }
-.memo-item.completed { opacity: 0.55; }
+.memo-item.completed { opacity: 0.5; }
 
 .memo-check {
   width: 24px; height: 24px; border-radius: 50%;
@@ -250,23 +261,23 @@ body {
 .tab-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
   border-top: 0.5px solid var(--separator);
   display: flex; justify-content: space-around;
-  padding: 6px 0 var(--safe-bottom);
+  padding: 4px 0 calc(4px + var(--safe-bottom));
   z-index: 30;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 .tab-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   border: none; background: none;
   font-family: var(--font); cursor: pointer;
-  padding: 6px 16px; border-radius: 10px;
+  padding: 4px 16px; border-radius: 10px;
   transition: background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .tab-btn:active { background: var(--surface2); }
-.tab-icon { font-size: 22px; transition: transform 0.2s; }
+.tab-icon { font-size: 20px; transition: transform 0.2s; }
 .tab-label {
   font-size: 10px; font-weight: 500; color: var(--text3);
   transition: color 0.2s;
@@ -278,7 +289,7 @@ body {
 #lockscreen-page {
   background: #000;
   align-items: center; justify-content: flex-start;
-  padding-top: 60px;
+  padding-top: calc(50px + var(--safe-top));
 }
 .ls-container {
   width: 100%; max-width: 390px;
@@ -287,7 +298,7 @@ body {
 }
 .ls-time {
   font-size: 64px; font-weight: 200; color: #fff;
-  letter-spacing: -2px; margin-top: 40px;
+  letter-spacing: -2px;
   font-family: 'SF Pro Display', var(--font);
 }
 .ls-date {
@@ -337,20 +348,21 @@ body {
 /* ==================== 日历弹窗 ==================== */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.4); z-index: 50;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
   align-items: center; justify-content: center;
   padding: 20px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 .modal-overlay.show { display: flex; }
 .modal-content {
-  background: var(--surface);
+  background: var(--surface-solid);
   border-radius: 20px;
   width: 100%; max-width: 380px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12);
   overflow: hidden;
-  animation: modalIn 0.3s ease;
+  animation: modalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.92) translateY(20px); }
@@ -364,7 +376,10 @@ body {
 .modal-header h3 { font-size: 17px; font-weight: 600; }
 .modal-close {
   width: 30px; height: 30px; border-radius: 50%;
-  border: none; background: var(--surface2);
+  border: none;
+  background: var(--surface2);
+  backdrop-filter: var(--blur-light);
+  -webkit-backdrop-filter: var(--blur-light);
   font-size: 16px; cursor: pointer; color: var(--text2);
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
@@ -379,7 +394,10 @@ body {
 .cal-month-label { font-size: 17px; font-weight: 600; }
 .cal-nav-btn {
   width: 34px; height: 34px; border-radius: 50%;
-  border: none; background: var(--surface2);
+  border: none;
+  background: var(--surface2);
+  backdrop-filter: var(--blur-light);
+  -webkit-backdrop-filter: var(--blur-light);
   font-size: 14px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
@@ -433,10 +451,12 @@ body {
   width: 100%; border: 1px solid var(--separator);
   border-radius: var(--radius-xs); padding: 10px 14px;
   font-size: 16px; font-family: var(--font);
-  color: var(--text); background: var(--surface);
+  color: var(--text); background: var(--surface2);
+  backdrop-filter: var(--blur-light);
+  -webkit-backdrop-filter: var(--blur-light);
   outline: none; transition: border-color 0.2s;
 }
-.form-input:focus, .form-textarea:focus { border-color: var(--blue); }
+.form-input:focus, .form-textarea:focus { border-color: var(--blue); background: var(--surface); }
 .form-textarea { resize: vertical; min-height: 80px; }
 .form-row {
   display: flex; gap: 12px; padding: 0;
