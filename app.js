@@ -544,40 +544,67 @@ function exportToCalendar() {
   const dtStamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}T${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const dtDate = today.replace(/-/g, '');
 
-  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//备忘录//CN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:今日备忘录\r\n';
+  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//备忘录//CN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:今日备忘录\r\nX-WR-TIMEZONE:Asia/Shanghai\r\n';
 
   memos.forEach((m, i) => {
-    const dtStart = m.time
-      ? `${dtDate}T${m.time.replace(':', '')}00`
-      : `${dtDate}T090000`;
+    // 开始时间：有具体时间则用，否则默认早9点
+    const startH = m.time ? m.time.split(':')[0] : '09';
+    const startM = m.time ? m.time.split(':')[1] : '00';
+    // 结束时间：开始时间 + 1小时
+    const endH = String((parseInt(startH) + 1) % 24).padStart(2, '0');
+    const dtStart = `${dtDate}T${startH}${startM}00`;
+    const dtEnd = `${dtDate}T${endH}${startM}00`;
     const uid = `${m.id}@beiwang`;
+
+    const safeTitle = m.title
+      .replace(/\\/g, '\\\\')
+      .replace(/,/g, '\\,')
+      .replace(/;/g, '\\;')
+      .replace(/\n/g, '\\n');
 
     ics += 'BEGIN:VEVENT\r\n';
     ics += `UID:${uid}\r\n`;
     ics += `DTSTAMP:${dtStamp}\r\n`;
     ics += `DTSTART:${dtStart}\r\n`;
-    ics += `SUMMARY:📝 ${m.title.replace(/,/g, '\\,').replace(/;/g, '\\;')}\r\n`;
+    ics += `DTEND:${dtEnd}\r\n`;
+    ics += `SUMMARY:📝 ${safeTitle}\r\n`;
     if (m.desc) {
-      ics += `DESCRIPTION:${m.desc.replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\n/g, '\\n')}\r\n`;
+      const safeDesc = m.desc
+        .replace(/\\/g, '\\\\')
+        .replace(/,/g, '\\,')
+        .replace(/;/g, '\\;')
+        .replace(/\n/g, '\\n');
+      ics += `DESCRIPTION:${safeDesc}\r\n`;
     }
     ics += 'BEGIN:VALARM\r\nTRIGGER:-PT30M\r\nACTION:DISPLAY\r\n';
-    ics += `DESCRIPTION:📝 ${m.title.replace(/,/g, '\\,').replace(/;/g, '\\;')}\r\n`;
+    ics += `DESCRIPTION:📝 ${safeTitle}\r\n`;
     ics += 'END:VALARM\r\n';
     ics += 'END:VEVENT\r\n';
   });
 
   ics += 'END:VCALENDAR\r\n';
 
-  // 下载 ICS 文件
+  // iOS 上用 data URI 更可靠
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `备忘录_${today}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+
+  if (isIOS) {
+    // iOS: 直接导航到 data URI，Safari 会弹出日历导入
+    const reader = new FileReader();
+    reader.onload = function() {
+      window.location.href = reader.result;
+    };
+    reader.readAsDataURL(blob);
+  } else {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `备忘录_${today}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   // 按钮反馈
   const btn = $('#export-cal-btn');
