@@ -547,10 +547,8 @@ function exportToCalendar() {
   let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//备忘录//CN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:今日备忘录\r\nX-WR-TIMEZONE:Asia/Shanghai\r\n';
 
   memos.forEach((m, i) => {
-    // 开始时间：有具体时间则用，否则默认早9点
     const startH = m.time ? m.time.split(':')[0] : '09';
     const startM = m.time ? m.time.split(':')[1] : '00';
-    // 结束时间：开始时间 + 1小时
     const endH = String((parseInt(startH) + 1) % 24).padStart(2, '0');
     const dtStart = `${dtDate}T${startH}${startM}00`;
     const dtEnd = `${dtDate}T${endH}${startM}00`;
@@ -584,43 +582,55 @@ function exportToCalendar() {
 
   ics += 'END:VCALENDAR\r\n';
 
-  // iOS 上用 data URI 更可靠
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  // 创建 data URI
+  const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
 
-  if (isIOS) {
-    // iOS: 直接导航到 data URI，Safari 会弹出日历导入
-    const reader = new FileReader();
-    reader.onload = function() {
-      window.location.href = reader.result;
-    };
-    reader.readAsDataURL(blob);
-  } else {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `备忘录_${today}.ics`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
+  // 创建可见的下载链接
+  const existingLink = document.getElementById('cal-download-link');
+  if (existingLink) existingLink.remove();
+
+  const container = document.createElement('div');
+  container.id = 'cal-download-link';
+  container.style.cssText = 'margin:10px 16px 0;padding:14px 16px;background:var(--green-bg);border-radius:14px;text-align:center;animation:modalIn 0.3s ease;';
+
+  container.innerHTML = `
+    <p style="margin:0 0 10px;font-size:14px;color:var(--green);font-weight:600;">
+      ✅ 已生成 ${memos.length} 条日历事件
+    </p>
+    <a href="${dataUri}" download="备忘录_${today}.ics"
+       style="display:block;background:var(--green);color:#fff;padding:12px 24px;border-radius:10px;
+              text-decoration:none;font-size:16px;font-weight:600;font-family:var(--font);">
+      📅 点击这里导入日历
+    </a>
+    <p style="margin:8px 0 0;font-size:12px;color:var(--text3);">
+      导入后在锁屏向左滑即可看到「下一个日程」
+    </p>
+  `;
+
+  // 插入到 today-card 之后
+  const todayCard = $('#today-card');
+  todayCard.parentNode.insertBefore(container, todayCard.nextSibling);
+
+  // 滚动到可见
+  container.scrollIntoView({ behavior: 'smooth' });
+
+  // 10 秒后自动移除
+  setTimeout(() => {
+    if (container.parentNode) {
+      container.style.opacity = '0';
+      container.style.transition = 'opacity 0.3s';
+      setTimeout(() => { if (container.parentNode) container.remove(); }, 300);
+    }
+  }, 10000);
 
   // 按钮反馈
   const btn = $('#export-cal-btn');
-  btn.textContent = '✅ 已导出！在弹窗中点「添加」';
+  btn.textContent = '✅ 已生成！点击下方链接导入';
   btn.classList.add('success');
   setTimeout(() => {
     btn.textContent = '🔔 添加到锁屏';
     btn.classList.remove('success');
   }, 3000);
-
-  // 提示下一步
-  if (memos.length === 1) {
-    alert('✅ 已导出 1 条任务！\n\n📱 下一步：在弹出的日历窗口中点击「添加」，任务就会出现在锁屏上。\n\n💡 以后每次改了任务，重新点一下「添加到锁屏」即可更新。');
-  } else {
-    alert(`✅ 已导出 ${memos.length} 条任务！\n\n📱 下一步：在弹出的日历窗口中点击「添加全部」，任务就会出现在锁屏上。\n\n💡 以后每次改了任务，重新点一下「添加到锁屏」即可更新。`);
-  }
 }
 
 // ── 事件绑定 ────────────────────────────────────────────────
