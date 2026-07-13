@@ -521,6 +521,81 @@ function rescheduleAllNotifications() {
   }
 }
 
+// ── 导出到系统日历（锁屏显示） ──────────────────────────────
+
+function exportToCalendar() {
+  const today = getDateKey(new Date());
+  const memos = getMemosForDate(today).filter(m => !m.completed);
+
+  if (memos.length === 0) {
+    const btn = $('#export-cal-btn');
+    btn.textContent = '📭 今天没有待办任务';
+    btn.classList.add('success');
+    setTimeout(() => {
+      btn.textContent = '🔔 添加到锁屏';
+      btn.classList.remove('success');
+    }, 2000);
+    return;
+  }
+
+  // 生成 ICS 日历文件
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const dtStamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}T${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const dtDate = today.replace(/-/g, '');
+
+  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//备忘录//CN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:今日备忘录\r\n';
+
+  memos.forEach((m, i) => {
+    const dtStart = m.time
+      ? `${dtDate}T${m.time.replace(':', '')}00`
+      : `${dtDate}T090000`;
+    const uid = `${m.id}@beiwang`;
+
+    ics += 'BEGIN:VEVENT\r\n';
+    ics += `UID:${uid}\r\n`;
+    ics += `DTSTAMP:${dtStamp}\r\n`;
+    ics += `DTSTART:${dtStart}\r\n`;
+    ics += `SUMMARY:📝 ${m.title.replace(/,/g, '\\,').replace(/;/g, '\\;')}\r\n`;
+    if (m.desc) {
+      ics += `DESCRIPTION:${m.desc.replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\n/g, '\\n')}\r\n`;
+    }
+    ics += 'BEGIN:VALARM\r\nTRIGGER:-PT30M\r\nACTION:DISPLAY\r\n';
+    ics += `DESCRIPTION:📝 ${m.title.replace(/,/g, '\\,').replace(/;/g, '\\;')}\r\n`;
+    ics += 'END:VALARM\r\n';
+    ics += 'END:VEVENT\r\n';
+  });
+
+  ics += 'END:VCALENDAR\r\n';
+
+  // 下载 ICS 文件
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `备忘录_${today}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // 按钮反馈
+  const btn = $('#export-cal-btn');
+  btn.textContent = '✅ 已导出！在弹窗中点「添加」';
+  btn.classList.add('success');
+  setTimeout(() => {
+    btn.textContent = '🔔 添加到锁屏';
+    btn.classList.remove('success');
+  }, 3000);
+
+  // 提示下一步
+  if (memos.length === 1) {
+    alert('✅ 已导出 1 条任务！\n\n📱 下一步：在弹出的日历窗口中点击「添加」，任务就会出现在锁屏上。\n\n💡 以后每次改了任务，重新点一下「添加到锁屏」即可更新。');
+  } else {
+    alert(`✅ 已导出 ${memos.length} 条任务！\n\n📱 下一步：在弹出的日历窗口中点击「添加全部」，任务就会出现在锁屏上。\n\n💡 以后每次改了任务，重新点一下「添加到锁屏」即可更新。`);
+  }
+}
+
 // ── 事件绑定 ────────────────────────────────────────────────
 
 // 备忘录列表点击（事件委托）
@@ -546,7 +621,10 @@ quickAddInput.addEventListener('keydown', (e) => {
   }
 });
 
-// 日期选择按钮 → 打开快速新建（默认当天）
+// 导出到日历锁屏
+$('#export-cal-btn').addEventListener('click', exportToCalendar);
+
+// 日期选择按钮 → 打开日历
 datePickerBtn.addEventListener('click', showCalendarModal);
 
 // 左滑 or 右滑切换日期（简单实现：点击日历选择）

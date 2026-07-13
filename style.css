@@ -168,6 +168,37 @@ body {
   100% { filter: brightness(1); }
 }
 
+/* ── 导出到锁屏按钮 ── */
+.export-cal-btn {
+  display: block; width: 100%; margin-top: 12px;
+  border: 1px dashed var(--separator);
+  background: var(--surface2);
+  backdrop-filter: var(--blur-light);
+  -webkit-backdrop-filter: var(--blur-light);
+  color: var(--text2);
+  font-size: 13px; font-family: var(--font);
+  padding: 10px; border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.export-cal-btn:active {
+  background: var(--blue-bg);
+  border-color: var(--blue);
+  color: var(--blue);
+  transform: scale(0.97);
+}
+.export-cal-btn.success {
+  border-color: var(--green);
+  background: var(--green-bg);
+  color: var(--green);
+  animation: exportPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes exportPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
 /* ── 快速添加 ── */
 .quick-add {
   display: flex; gap: 10px;
