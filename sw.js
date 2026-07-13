@@ -2,7 +2,7 @@
    备忘录 Service Worker — 离线支持 & 通知
    ============================================================ */
 
-const CACHE_NAME = 'beiwang-v2';
+const CACHE_NAME = 'beiwang-v3';
 const ASSETS = [
   './',
   'index.html',
