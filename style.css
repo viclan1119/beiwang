@@ -285,65 +285,6 @@ body {
 .tab-btn.active .tab-label { color: var(--blue); }
 .tab-btn.active .tab-icon { transform: scale(1.1); }
 
-/* ==================== 锁屏页面 ==================== */
-#lockscreen-page {
-  background: #000;
-  align-items: center; justify-content: flex-start;
-  padding-top: calc(50px + var(--safe-top));
-}
-.ls-container {
-  width: 100%; max-width: 390px;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 0 20px;
-}
-.ls-time {
-  font-size: 64px; font-weight: 200; color: #fff;
-  letter-spacing: -2px;
-  font-family: 'SF Pro Display', var(--font);
-}
-.ls-date {
-  font-size: 18px; color: #ccc; font-weight: 400;
-  margin-top: 4px; margin-bottom: 30px;
-}
-.ls-widgets { width: 100%; }
-.ls-memo-widget {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-radius: 20px; padding: 16px 18px;
-  border: 0.5px solid rgba(255,255,255,0.15);
-}
-.ls-widget-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 12px;
-  color: rgba(255,255,255,0.8);
-  font-size: 13px; font-weight: 500;
-}
-.ls-widget-icon { font-size: 16px; }
-.ls-widget-title { flex: 1; }
-.ls-widget-count {
-  background: rgba(255,255,255,0.2);
-  padding: 2px 10px; border-radius: 12px;
-  font-size: 12px; font-weight: 600;
-}
-.ls-widget-list { display: flex; flex-direction: column; gap: 8px; }
-.ls-widget-item {
-  display: flex; align-items: center; gap: 10px;
-  color: rgba(255,255,255,0.9);
-  font-size: 14px;
-}
-.ls-widget-item .ls-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  flex-shrink: 0;
-}
-.ls-widget-item .ls-dot.orange { background: #ff9500; }
-.ls-widget-item .ls-dot.green { background: #34c759; }
-.ls-widget-item.completed { text-decoration: line-through; opacity: 0.5; }
-.ls-widget-empty { color: rgba(255,255,255,0.4); font-size: 14px; text-align: center; padding: 10px; }
-.ls-hint {
-  margin-top: 30px; color: rgba(255,255,255,0.3);
-  font-size: 12px; text-align: center; line-height: 1.6;
-}
 
 /* ==================== 日历弹窗 ==================== */
 .modal-overlay {

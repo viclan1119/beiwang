@@ -84,7 +84,6 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 const mainPage = $('#main-page');
-const lockscreenPage = $('#lockscreen-page');
 const memoList = $('#memo-list');
 const emptyState = $('#empty-state');
 const quickAddInput = $('#quick-add-input');
@@ -121,7 +120,6 @@ const editDelete = $('#edit-delete');
 function renderAll() {
   renderMemoList();
   renderTodayStats();
-  renderLockScreen();
   updateDateDisplay();
 }
 
@@ -171,12 +169,6 @@ function updateDateDisplay() {
   const now = new Date();
   const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
   todayDateLabel.textContent = `${now.getMonth()+1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
-
-  // Lock screen date
-  $('#ls-date').textContent = `${now.getMonth()+1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
-
-  // Lock screen time
-  updateLockScreenTime();
 }
 
 function updateSectionTitle() {
@@ -187,13 +179,6 @@ function updateSectionTitle() {
   } else {
     sectionTitle.textContent = `${d.getMonth()+1}月${d.getDate()}日 备忘录`;
   }
-}
-
-function updateLockScreenTime() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  $('#ls-time').textContent = `${h}:${m}`;
 }
 
 function renderTodayStats() {
@@ -210,32 +195,6 @@ function renderTodayStats() {
     progressFill.style.width = `${Math.round((done / total) * 100)}%`;
   } else {
     progressFill.style.width = '0%';
-  }
-}
-
-function renderLockScreen() {
-  const today = getDateKey(new Date());
-  const memos = getMemosForDate(today);
-  const pendingMemos = memos.filter(m => !m.completed);
-
-  const widgetList = $('#ls-widget-list');
-  const taskCount = $('#ls-task-count');
-
-  taskCount.textContent = `${pendingMemos.length} 待办`;
-
-  if (pendingMemos.length === 0) {
-    widgetList.innerHTML = '<div class="ls-widget-empty">🎉 全部完成</div>';
-  } else {
-    widgetList.innerHTML = pendingMemos.slice(0, 5).map(m => `
-      <div class="ls-widget-item">
-        <span class="ls-dot orange"></span>
-        <span>${escapeHtml(m.title)}</span>
-        ${m.time ? `<span style="margin-left:auto;opacity:0.6;font-size:13px">${m.time}</span>` : ''}
-      </div>
-    `).join('');
-    if (pendingMemos.length > 5) {
-      widgetList.innerHTML += `<div class="ls-widget-empty">还有 ${pendingMemos.length - 5} 项…</div>`;
-    }
   }
 }
 
@@ -639,23 +598,14 @@ tabBar.addEventListener('click', (e) => {
 
   const tab = btn.dataset.tab;
 
-  if (btn.dataset.page === 'lockscreen') {
-    mainPage.classList.remove('active');
-    lockscreenPage.classList.add('active');
-    renderLockScreen();
-    updateLockScreenTime();
-  } else {
-    lockscreenPage.classList.remove('active');
-    mainPage.classList.add('active');
-    if (tab === 'today') {
-      currentDateKey = getDateKey(new Date());
-      renderAll();
-    } else if (tab === 'calendar') {
-      showCalendarModal();
-      // 恢复 tab 到 today
-      $$('.tab-btn').forEach(b => b.classList.remove('active'));
-      tabBar.querySelector('[data-tab="today"]').classList.add('active');
-    }
+  if (tab === 'today') {
+    currentDateKey = getDateKey(new Date());
+    renderAll();
+  } else if (tab === 'calendar') {
+    showCalendarModal();
+    // 恢复激活状态到"今天"
+    $$('.tab-btn').forEach(b => b.classList.remove('active'));
+    tabBar.querySelector('[data-tab="today"]').classList.add('active');
   }
 });
 
@@ -678,13 +628,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ── 锁屏时间实时更新 ────────────────────────────────────────
-setInterval(() => {
-  if (lockscreenPage.classList.contains('active')) {
-    updateLockScreenTime();
-  }
-}, 10000); // 每10秒更新
-
 // ── 初始化 ──────────────────────────────────────────────────
 
 function init() {
@@ -702,7 +645,6 @@ function init() {
   console.log('📝 备忘录已就绪');
   console.log('  ⌘+N / Ctrl+N  新建备忘录');
   console.log('  点击 📅 选择日期');
-  console.log('  底部 🔒 查看锁屏预览');
 }
 
 document.addEventListener('DOMContentLoaded', init);
