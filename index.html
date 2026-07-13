@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="备忘录">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23FFD60A'/><text x='50' y='68' font-size='55' text-anchor='middle'>📝</text></svg>">
+<link rel="manifest" href="manifest.json">
+<title>备忘录</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==================== 锁屏小组件（独立页面） ==================== -->
+<div id="lockscreen-page" class="page">
+  <div class="ls-container">
+    <div class="ls-time" id="ls-time">9:41</div>
+    <div class="ls-date" id="ls-date">7月13日 周一</div>
+    <div class="ls-widgets">
+      <!-- 备忘录锁屏小组件 -->
+      <div class="ls-memo-widget" id="ls-memo-widget">
+        <div class="ls-widget-header">
+          <span class="ls-widget-icon">📝</span>
+          <span class="ls-widget-title">今日备忘</span>
+          <span class="ls-widget-count" id="ls-task-count">0</span>
+        </div>
+        <div class="ls-widget-list" id="ls-widget-list">
+          <div class="ls-widget-empty">暂无任务</div>
+        </div>
+      </div>
+    </div>
+    <div class="ls-hint">▲ 这是锁屏预览效果<br>将此网页添加到主屏幕后，可配合 iOS 小组件使用</div>
+  </div>
+</div>
+
+<!-- ==================== 主应用页面 ==================== -->
+<div id="main-page" class="page active">
+
+  <!-- 顶部导航 -->
+  <header class="header">
+    <div class="header-left">
+      <span class="header-icon">📝</span>
+      <h1 class="header-title">备忘录</h1>
+    </div>
+    <div class="header-right">
+      <span class="header-date" id="header-date">2026年7月13日</span>
+    </div>
+  </header>
+
+  <!-- 今日概览卡片 -->
+  <section class="today-card" id="today-card">
+    <div class="today-card-header">
+      <div class="today-info">
+        <span class="today-label">今天</span>
+        <span class="today-date" id="today-date">7月13日 周一</span>
+      </div>
+      <div class="today-stats">
+        <span class="stat-pending" id="stat-pending">0 待办</span>
+        <span class="stat-done" id="stat-done">0 已完成</span>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </section>
+
+  <!-- 快速添加 -->
+  <div class="quick-add" id="quick-add-bar">
+    <input type="text" class="quick-add-input" id="quick-add-input" placeholder="快速添加备忘录…" autocomplete="off">
+    <button class="quick-add-btn" id="quick-add-btn">＋</button>
+  </div>
+
+  <!-- 备忘录列表 -->
+  <section class="memo-section" id="memo-section">
+    <div class="section-header">
+      <h2 class="section-title" id="section-title">今日备忘录</h2>
+      <button class="date-picker-btn" id="date-picker-btn">📅</button>
+    </div>
+    <!-- 隐藏的日期选择器 -->
+    <input type="date" class="date-picker" id="date-picker">
+    <div class="memo-list" id="memo-list"></div>
+    <div class="empty-state" id="empty-state">
+      <span class="empty-icon">☕️</span>
+      <p>今天还没有备忘录</p>
+      <p class="empty-hint">在上方输入框快速添加一条吧</p>
+    </div>
+  </section>
+
+  <!-- 底部导航 -->
+  <nav class="tab-bar" id="tab-bar">
+    <button class="tab-btn active" data-page="main" data-tab="today">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">今天</span>
+    </button>
+    <button class="tab-btn" data-page="main" data-tab="calendar">
+      <span class="tab-icon">🗓</span>
+      <span class="tab-label">日历</span>
+    </button>
+    <button class="tab-btn" data-page="lockscreen" data-tab="lockscreen">
+      <span class="tab-icon">🔒</span>
+      <span class="tab-label">锁屏</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ==================== 日历弹窗 ==================== -->
+<div class="modal-overlay" id="calendar-modal">
+  <div class="modal-content calendar-content">
+    <div class="modal-header">
+      <h3>选择日期</h3>
+      <button class="modal-close" id="calendar-close">✕</button>
+    </div>
+    <div class="calendar-nav">
+      <button class="cal-nav-btn" id="cal-prev">◀</button>
+      <span class="cal-month-label" id="cal-month-label">2026年7月</span>
+      <button class="cal-nav-btn" id="cal-next">▶</button>
+    </div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+    <button class="btn-today" id="btn-today">回到今天</button>
+  </div>
+</div>
+
+<!-- ==================== 编辑弹窗 ==================== -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-content edit-content">
+    <div class="modal-header">
+      <h3 id="edit-title">新建备忘录</h3>
+      <button class="modal-close" id="edit-close">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">标题</label>
+      <input type="text" class="form-input" id="edit-memo-title" placeholder="输入备忘录标题…">
+    </div>
+    <div class="form-group">
+      <label class="form-label">详细内容</label>
+      <textarea class="form-textarea" id="edit-memo-desc" placeholder="输入详细内容（可选）…" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group form-group-half">
+        <label class="form-label">日期</label>
+        <input type="date" class="form-input" id="edit-memo-date">
+      </div>
+      <div class="form-group form-group-half">
+        <label class="form-label">提醒时间</label>
+        <input type="time" class="form-input" id="edit-memo-time">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-delete" id="edit-delete" style="display:none">删除</button>
+      <button class="btn-save" id="edit-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
